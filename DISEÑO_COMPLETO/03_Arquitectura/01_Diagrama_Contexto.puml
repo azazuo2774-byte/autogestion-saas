@@ -1,0 +1,107 @@
+@startuml Diagrama de Contexto - AutoGestión SaaS
+
+!define RECTANGLE class
+
+title Diagrama de Contexto - AutoGestión SaaS
+
+actor "Propietario de Autoventa" as PROPIETARIO
+actor "Administrador de Autoventa" as ADMIN_AUTOVENTA
+actor "Vendedor" as VENDEDOR
+actor "Administrador SaaS" as ADMIN_SAAS
+actor "Cliente/Comprador" as CLIENTE
+
+rectangle "AutoGestión SaaS" {
+    rectangle "Frontend React" as FRONTEND
+    rectangle "API Gateway (YARP)" as GATEWAY
+    
+    rectangle "Microservicio Administrador" as MS_ADMIN
+    rectangle "Microservicio Inventario" as MS_INVENTARIO
+    rectangle "Microservicio Clientes" as MS_CLIENTES
+    rectangle "Microservicio Ventas" as MS_VENTAS
+    
+    database "PostgreSQL\nautogestion_administrador" as DB_ADMIN
+    database "PostgreSQL\nautogestion_inventario_tenantId" as DB_INVENTARIO
+    database "PostgreSQL\nautogestion_clientes_tenantId" as DB_CLIENTES
+    database "PostgreSQL\nautogestion_ventas_tenantId" as DB_VENTAS
+}
+
+PROPIETARIO --> FRONTEND : Accede al panel
+ADMIN_AUTOVENTA --> FRONTEND : Gestiona operaciones
+VENDEDOR --> FRONTEND : Registra clientes y ventas
+ADMIN_SAAS --> FRONTEND : Administra plataforma
+CLIENTE --> FRONTEND : (No accede - solo datos en CRM)
+
+FRONTEND --> GATEWAY : HTTP + X-Tenant-Id
+GATEWAY --> MS_ADMIN : Routing
+GATEWAY --> MS_INVENTARIO : Routing
+GATEWAY --> MS_CLIENTES : Routing
+GATEWAY --> MS_VENTAS : Routing
+
+MS_ADMIN --> DB_ADMIN : Lectura/Escritura
+MS_INVENTARIO --> DB_INVENTARIO : Lectura/Escritura
+MS_CLIENTES --> DB_CLIENTES : Lectura/Escritura
+MS_VENTAS --> DB_VENTAS : Lectura/Escritura
+
+note right of FRONTEND
+  Aplicación web React/Vite
+  Navegación SPA
+  Gestión de estado
+end note
+
+note right of GATEWAY
+  Gateway YARP (previsto)
+  Routing por endpoint
+  Validación de tenant
+end note
+
+note right of MS_ADMIN
+  Gestión de tenants
+  Usuarios, roles, permisos
+  Planes y suscripciones
+  Validación de vigencia
+end note
+
+note right of MS_INVENTARIO
+  CRUD vehículos
+  Consultas por tenant
+  Estados comerciales
+end note
+
+note right of MS_CLIENTES
+  CRUD clientes
+  CRM y oportunidades
+  Seguimiento comercial
+end note
+
+note right of MS_VENTAS
+  CRUD ventas
+  Gestión de reservas
+  Registro de pagos
+end note
+
+note right of DB_ADMIN
+  Base central
+  Catálogo de tenants
+  Usuarios globales
+  Planes y suscripciones
+end note
+
+note right of DB_INVENTARIO
+  Base por tenant (Silo)
+  Solo vehículos del tenant
+  Aislamiento físico
+end note
+
+note right of DB_CLIENTES
+  Base por tenant (Silo)
+  Solo clientes del tenant
+  Aislamiento físico
+end note
+
+note right of DB_VENTAS
+  Base por tenant (Silo)
+  Solo ventas del tenant
+  Referencias lógicas
+end note
+
+@enduml

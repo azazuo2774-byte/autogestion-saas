@@ -1,0 +1,179 @@
+@startuml Arquitectura General SaaS - AutoGestión SaaS
+
+!define RECTANGLE class
+
+title Arquitectura General SaaS - AutoGestión SaaS
+
+package "Capa de Presentación" {
+    rectangle "Frontend React/Vite" as FRONTEND {
+        rectangle "Páginas" as PAGINAS
+        rectangle "Componentes UI" as COMPONENTES
+        rectangle "Contexto de App" as CONTEXTO
+        rectangle "Router" as ROUTER
+    }
+}
+
+package "Capa de Gateway" {
+    rectangle "API Gateway YARP" as GATEWAY {
+        rectangle "Routing" as ROUTING
+        rectangle "Middleware Tenant" as MIDDLEWARE
+        rectangle "Validación" as VALIDACION
+    }
+}
+
+package "Capa de Microservicios" {
+    rectangle "Administrador" as ADMIN {
+        rectangle "Tenants Controller" as TENANTS
+        rectangle "Usuarios Controller" as USUARIOS
+        rectangle "Planes Controller" as PLANES
+        rectangle "Suscripciones Controller" as SUSCRIPCIONES
+        rectangle "DbContext Admin" as DBCTX_ADMIN
+    }
+    
+    rectangle "Inventario" as INVENTARIO {
+        rectangle "Vehículos Controller" as VEHICULOS
+        rectangle "DbContext Inventario" as DBCTX_INV
+    }
+    
+    rectangle "Clientes" as CLIENTES {
+        rectangle "Clientes Controller" as CLIENTES_CTRL
+        rectangle "Oportunidades Controller" as OPORTUNIDADES
+        rectangle "DbContext Clientes" as DBCTX_CLI
+    }
+    
+    rectangle "Ventas" as VENTAS {
+        rectangle "Ventas Controller" as VENTAS_CTRL
+        rectangle "Reservas Controller" as RESERVAS
+        rectangle "Pagos Controller" as PAGOS_CTRL
+        rectangle "DbContext Ventas" as DBCTX_VENTAS
+    }
+}
+
+package "Capa de Datos" {
+    database "autogestion_administrador" as DB_ADMIN
+    database "autogestion_inventario_1" as DB_INV_1
+    database "autogestion_clientes_1" as DB_CLI_1
+    database "autogestion_ventas_1" as DB_VENTAS_1
+    database "autogestion_inventario_2" as DB_INV_2
+    database "autogestion_clientes_2" as DB_CLI_2
+    database "autogestion_ventas_2" as DB_VENTAS_2
+}
+
+package "Infraestructura" {
+    rectangle "PostgreSQL 17" as PG
+    rectangle "pgAdmin 4" as PGADMIN
+    rectangle "Entity Framework Core" as EF
+}
+
+FRONTEND --> GATEWAY : HTTP + X-Tenant-Id
+GATEWAY --> ADMIN : Routing
+GATEWAY --> INVENTARIO : Routing
+GATEWAY --> CLIENTES : Routing
+GATEWAY --> VENTAS : Routing
+
+ADMIN --> DB_ADMIN : EF Core
+INVENTARIO --> DB_INV_1 : EF Core
+INVENTARIO --> DB_INV_2 : EF Core
+CLIENTES --> DB_CLI_1 : EF Core
+CLIENTES --> DB_CLI_2 : EF Core
+VENTAS --> DB_VENTAS_1 : EF Core
+VENTAS --> DB_VENTAS_2 : EF Core
+
+DB_ADMIN --> PG
+DB_INV_1 --> PG
+DB_CLI_1 --> PG
+DB_VENTAS_1 --> PG
+DB_INV_2 --> PG
+DB_CLI_2 --> PG
+DB_VENTAS_2 --> PG
+
+PGADMIN --> PG : Administración
+
+note right of FRONTEND
+  React 19.3.1
+  Vite 8.3.4
+  SPA con routing
+  Gestión de estado
+  Componentes reutilizables
+end note
+
+note right of GATEWAY
+  YARP (Yet Another Reverse Proxy)
+  Routing por endpoint
+  Extracción de X-Tenant-Id
+  Validación de tenant
+  Balanceo de carga (futuro)
+end note
+
+note right of ADMIN
+  ASP.NET Core 8
+  Gestión de tenants
+  Usuarios y roles
+  Planes y suscripciones
+  Validación de vigencia
+  Puerto: 5100
+end note
+
+note right of INVENTARIO
+  ASP.NET Core 8
+  CRUD vehículos
+  Consultas por tenant
+  Estados comerciales
+  Puerto: 5101
+end note
+
+note right of CLIENTES
+  ASP.NET Core 8
+  CRUD clientes
+  CRM y oportunidades
+  Seguimiento comercial
+  Puerto: 5102
+end note
+
+note right of VENTAS
+  ASP.NET Core 8
+  CRUD ventas
+  Gestión de reservas
+  Registro de pagos
+  Referencias lógicas
+  Puerto: 5103
+end note
+
+note right of DB_ADMIN
+  Base central
+  Catálogo de tenants
+  Usuarios globales
+  Planes y suscripciones
+  Esquema único
+end note
+
+note right of DB_INV_1
+  Base por tenant (Silo)
+  Solo vehículos tenant 1
+  Aislamiento físico
+  Migraciones independientes
+end note
+
+note right of DB_INV_2
+  Base por tenant (Silo)
+  Solo vehículos tenant 2
+  Aislamiento físico
+  Migraciones independientes
+end note
+
+note right of PG
+  PostgreSQL 17
+  Puerto: 5432
+  Múltiples bases
+  CREATEDB habilitado
+end note
+
+note bottom
+  Arquitectura Silo:
+  Cada tenant tiene bases independientes
+  No hay FK físicas entre microservicios
+  Comunicación por APIs REST
+  Identificación por X-Tenant-Id
+end note
+
+@enduml

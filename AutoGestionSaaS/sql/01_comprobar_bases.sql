@@ -1,0 +1,1 @@
+SELECT datname FROM pg_database WHERE datname LIKE 'autogestion_%' ORDER BY datname;

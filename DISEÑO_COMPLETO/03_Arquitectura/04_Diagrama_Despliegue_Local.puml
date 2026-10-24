@@ -1,0 +1,144 @@
+@startuml Diagrama de Despliegue Local - AutoGestión SaaS
+
+!define RECTANGLE class
+
+title Diagrama de Despliegue Local - AutoGestión SaaS
+
+node "Máquina de Desarrollo" as DEV {
+    rectangle "Visual Studio / VS Code" as IDE
+    rectangle "Terminal" as TERMINAL
+    rectangle "Navegador Web" as BROWSER
+}
+
+node "Servidor Local (localhost)" as SERVER {
+    rectangle "Frontend (Vite React)" as FRONTEND {
+        rectangle "Servidor de Desarrollo" as VITE_DEV
+        rectangle "Aplicación React" as REACT_APP
+    }
+    
+    rectangle "Backend .NET" as BACKEND {
+        rectangle "Administrador API" as ADMIN_API
+        rectangle "Inventario API" as INV_API
+        rectangle "Clientes API" as CLI_API
+        rectangle "Ventas API" as VENTAS_API
+    }
+}
+
+node "PostgreSQL Local" as PG_SERVER {
+    rectangle "PostgreSQL 17" as PG {
+        rectangle "autogestion_administrador" as DB_ADMIN
+        rectangle "autogestion_inventario_1" as DB_INV_1
+        rectangle "autogestion_clientes_1" as DB_CLI_1
+        rectangle "autogestion_ventas_1" as DB_VENTAS_1
+        rectangle "autogestion_inventario_2" as DB_INV_2
+        rectangle "autogestion_clientes_2" as DB_CLI_2
+        rectangle "autogestion_ventas_2" as DB_VENTAS_2
+    }
+    
+    rectangle "pgAdmin 4" as PGADMIN
+}
+
+node "Herramientas" as TOOLS {
+    rectangle "Git" as GIT
+    rectangle "GitHub" as GITHUB
+    rectangle "Swagger UI" as SWAGGER
+}
+
+IDE --> GIT : Commit
+IDE --> GITHUB : Push/Pull
+TERMINAL --> FRONTEND : npm run dev
+TERMINAL --> BACKEND : dotnet run
+BROWSER --> FRONTEND : http://localhost:5173
+BROWSER --> SWAGGER : http://localhost:5100-5103/swagger
+
+FRONTEND --> ADMIN_API : HTTP
+FRONTEND --> INV_API : HTTP
+FRONTEND --> CLI_API : HTTP
+FRONTEND --> VENTAS_API : HTTP
+
+ADMIN_API --> DB_ADMIN : EF Core
+INV_API --> DB_INV_1 : EF Core
+INV_API --> DB_INV_2 : EF Core
+CLI_API --> DB_CLI_1 : EF Core
+CLI_API --> DB_CLI_2 : EF Core
+VENTAS_API --> DB_VENTAS_1 : EF Core
+VENTAS_API --> DB_VENTAS_2 : EF Core
+
+PGADMIN --> PG : Gestión
+
+note right of FRONTEND
+  Vite Development Server
+  Puerto: 5173
+  Hot Module Replacement
+  React 19.3.1
+end note
+
+note right of ADMIN_API
+  ASP.NET Core
+  Puerto: 5100
+  Swagger: /swagger
+  Gestión de tenants
+end note
+
+note right of INV_API
+  ASP.NET Core
+  Puerto: 5101
+  Swagger: /swagger
+  Inventario vehículos
+end note
+
+note right of CLI_API
+  ASP.NET Core
+  Puerto: 5102
+  Swagger: /swagger
+  Gestión clientes
+end note
+
+note right of VENTAS_API
+  ASP.NET Core
+  Puerto: 5103
+  Swagger: /swagger
+  Gestión ventas
+end note
+
+note right of PG
+  PostgreSQL 17
+  Puerto: 5432
+  Host: localhost
+  Usuario: postgres
+  Password: (configurada localmente)
+end note
+
+note right of PGADMIN
+  pgAdmin 4
+  Gestión visual de bases
+  Verificación de tenants
+  Consultas SQL
+end note
+
+note bottom
+  Configuración de Ejecución:
+  
+  1. Crear base autogestion_administrador
+  2. Ejecutar migración inicial
+  3. Iniciar 4 terminales
+  4. Ejecutar cada microservicio:
+     - dotnet run --project AutoGestion.Administrador
+     - dotnet run --project AutoGestion.Inventario
+     - dotnet run --project AutoGestion.Clientes
+     - dotnet run --project AutoGestion.Ventas
+  5. Iniciar frontend: npm run dev
+  6. Acceder a Swagger para pruebas
+  7. Configurar X-Tenant-Id en Swagger
+end note
+
+note top
+  Requisitos:
+  - .NET SDK 8
+  - Node.js (para Vite)
+  - PostgreSQL 17 con CREATEDB
+  - Visual Studio o VS Code
+  - Puertos libres: 5173, 5100-5103, 5432
+end note
+
+@enduml

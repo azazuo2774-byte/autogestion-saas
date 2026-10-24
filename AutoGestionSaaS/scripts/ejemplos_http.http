@@ -1,0 +1,59 @@
+@admin = http://localhost:5100
+@inv = http://localhost:5101
+@cli = http://localhost:5102
+@ven = http://localhost:5103
+
+### Crear tenant uno
+POST {{admin}}/api/registro
+Content-Type: application/json
+
+{"tenantNombre":"AutoSur Tarija","nombre":"Ana","email":"ana@example.com","password":"ClaveDemo123!"}
+
+### Crear tenant dos
+POST {{admin}}/api/registro
+Content-Type: application/json
+
+{"tenantNombre":"Motores del Valle","nombre":"Carlos","email":"carlos@example.com","password":"ClaveDemo123!"}
+
+### Crear plan
+POST {{admin}}/api/planes
+Content-Type: application/json
+
+{"nombre":"Profesional","precio":149,"duracionDias":30,"disponible":true}
+
+### Consultar planes
+GET {{admin}}/api/planes/disponibles
+
+### Suscribir usuario 1 al plan 1 (ajustar IDs reales)
+POST {{admin}}/api/suscripciones
+Content-Type: application/json
+
+{"usuarioId":1,"planId":1}
+
+### Vigencia de usuario 1
+GET {{admin}}/api/suscripciones/vigencia/1
+
+### Inventario tenant 1
+POST {{inv}}/api/vehiculos
+X-Tenant-Id: 1
+Content-Type: application/json
+
+{"marca":"Toyota","modelo":"Hilux","anio":2020,"precio":120000,"estado":"Disponible"}
+
+### Inventario tenant 2: no debe mostrar inventario tenant 1
+GET {{inv}}/api/vehiculos
+X-Tenant-Id: 2
+
+### Clientes tenant 1
+POST {{cli}}/api/clientes
+X-Tenant-Id: 1
+Content-Type: application/json
+
+{"nombre":"Cliente de prueba","telefono":"70000000","correo":"cliente@example.com"}
+
+### Venta tenant 1 - referencias a recursos propios, sin FK entre microservicios
+POST {{ven}}/api/ventas
+X-Tenant-Id: 1
+Content-Type: application/json
+
+{"vehiculoId":1,"clienteId":1,"precioFinal":115000,"estado":"Pendiente"}

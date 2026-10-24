@@ -1,0 +1,194 @@
+@startuml Arquitectura de Microservicios - AutoGestión SaaS
+
+!define RECTANGLE class
+
+title Arquitectura de Microservicios - AutoGestión SaaS
+
+rectangle "Microservicio Administrador" as MS_ADMIN {
+    rectangle "Controllers" as C_ADMIN {
+        rectangle "RegistroController" as REG_CTRL
+        rectangle "PlanesController" as PLAN_CTRL
+        rectangle "SuscripcionesController" as SUSC_CTRL
+    }
+    
+    rectangle "Services" as S_ADMIN {
+        rectangle "TenantService" as TENANT_SVC
+        rectangle "UsuarioService" as USUARIO_SVC
+        rectangle "PlanService" as PLAN_SVC
+        rectangle "SuscripcionService" as SUSC_SVC
+    }
+    
+    rectangle "Data" as D_ADMIN {
+        rectangle "DbContext" as DBCTX_ADMIN
+        rectangle "Entities" as ENT_ADMIN {
+            rectangle "Tenant" as ENT_TENANT
+            rectangle "Usuario" as ENT_USUARIO
+            rectangle "Plan" as ENT_PLAN
+            rectangle "Suscripcion" as ENT_SUSC
+        }
+        rectangle "Migrations" as MIG_ADMIN
+    }
+}
+
+rectangle "Microservicio Inventario" as MS_INVENTARIO {
+    rectangle "Controllers" as C_INV {
+        rectangle "VehiculosController" as VEH_CTRL
+    }
+    
+    rectangle "Services" as S_INV {
+        rectangle "VehiculoService" as VEH_SVC
+        rectangle "TenantResolver" as TENANT_RES
+    }
+    
+    rectangle "Data" as D_INV {
+        rectangle "DbContext" as DBCTX_INV
+        rectangle "Entities" as ENT_INV {
+            rectangle "Vehiculo" as ENT_VEH
+        }
+        rectangle "Migrations" as MIG_INV
+    }
+}
+
+rectangle "Microservicio Clientes" as MS_CLIENTES {
+    rectangle "Controllers" as C_CLI {
+        rectangle "ClientesController" as CLI_CTRL
+        rectangle "OportunidadesController" as OPORT_CTRL
+    }
+    
+    rectangle "Services" as S_CLI {
+        rectangle "ClienteService" as CLI_SVC
+        rectangle "OportunidadService" as OPORT_SVC
+        rectangle "TenantResolver" as TENANT_RES_CLI
+    }
+    
+    rectangle "Data" as D_CLI {
+        rectangle "DbContext" as DBCTX_CLI
+        rectangle "Entities" as ENT_CLI {
+            rectangle "Cliente" as ENT_CLIENTE
+            rectangle "Oportunidad" as ENT_OPORT
+        }
+        rectangle "Migrations" as MIG_CLI
+    }
+}
+
+rectangle "Microservicio Ventas" as MS_VENTAS {
+    rectangle "Controllers" as C_VENTAS {
+        rectangle "VentasController" as VENT_CTRL
+        rectangle "ReservasController" as RES_CTRL
+        rectangle "PagosController" as PAG_CTRL
+    }
+    
+    rectangle "Services" as S_VENTAS {
+        rectangle "VentaService" as VENT_SVC
+        rectangle "ReservaService" as RES_SVC
+        rectangle "PagoService" as PAG_SVC
+        rectangle "TenantResolver" as TENANT_RES_VENTAS
+        rectangle "ValidacionService" as VALID_SVC
+    }
+    
+    rectangle "Data" as D_VENTAS {
+        rectangle "DbContext" as DBCTX_VENTAS
+        rectangle "Entities" as ENT_VENTAS {
+            rectangle "Venta" as ENT_VENTA
+            rectangle "Reserva" as ENT_RESERVA
+            rectangle "Pago" as ENT_PAGO
+        }
+        rectangle "Migrations" as MIG_VENTAS
+    }
+}
+
+rectangle "Comunicación Entre Microservicios" as COMMS {
+    rectangle "HttpClient" as HTTP
+    rectangle "X-Tenant-Id Header" as HEADER
+}
+
+C_ADMIN --> S_ADMIN
+S_ADMIN --> D_ADMIN
+C_INV --> S_INV
+S_INV --> D_INV
+C_CLI --> S_CLI
+S_CLI --> D_CLI
+C_VENTAS --> C_VENTAS
+S_VENTAS --> D_VENTAS
+
+MS_ADMIN --> COMMS : Consulta tenant
+MS_INVENTARIO --> COMMS : Valida tenant
+MS_CLIENTES --> COMMS : Valida tenant
+MS_VENTAS --> COMMS : Valida tenant
+
+MS_VENTAS --> MS_INVENTARIO : Valida vehículo (HTTP)
+MS_VENTAS --> MS_CLIENTES : Valida cliente (HTTP)
+
+note right of MS_ADMIN
+  Responsabilidades:
+  - Registrar tenants
+  - Preparar bases de datos
+  - Aplicar migraciones
+  - Gestionar usuarios
+  - Administrar planes
+  - Gestionar suscripciones
+  - Validar vigencia
+  
+  Puerto: 5100
+end note
+
+note right of MS_INVENTARIO
+  Responsabilidades:
+  - Registrar vehículos
+  - Consultar inventario
+  - Actualizar información
+  - Gestionar estados
+  - Resolver tenant por X-Tenant-Id
+  
+  Puerto: 5101
+  Base: autogestion_inventario_tenantId
+end note
+
+note right of MS_CLIENTES
+  Responsabilidades:
+  - Registrar clientes
+  - Consultar clientes
+  - Gestionar oportunidades
+  - Seguimiento comercial
+  - Resolver tenant por X-Tenant-Id
+  
+  Puerto: 5102
+  Base: autogestion_clientes_tenantId
+end note
+
+note right of MS_VENTAS
+  Responsabilidades:
+  - Registrar ventas
+  - Gestionar reservas
+  - Registrar pagos
+  - Validar referencias lógicas
+  - Resolver tenant por X-Tenant-Id
+  
+  Puerto: 5103
+  Base: autogestion_ventas_tenantId
+  
+  Nota: No hay FK físicas
+  ClienteId y VehiculoId son
+  referencias lógicas validadas
+  por APIs
+end note
+
+note right of COMMS
+  Comunicación:
+  - HttpClient entre servicios
+  - Header X-Tenant-Id
+  - Validación de tenant
+  - Referencias lógicas
+  - Sin FK físicas
+end note
+
+note bottom
+  Principios de Diseño:
+  - Cada microservicio es dueño de sus datos
+  - Bases independientes por tenant (Silo)
+  - Comunicación asíncrona vía HTTP
+  - Sin transacciones distribuidas (MVP)
+  - Validación de integridad por APIs
+end note
+
+@enduml
