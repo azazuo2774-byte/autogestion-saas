@@ -1890,11 +1890,73 @@ img {
   .vehicle-grid {
     grid-template-columns: 1fr;
   }
+
+  .search-filter-bar,
+  .page-header-actions,
+  .topbar-right,
+  .modal-footer,
+  .card-header {
+    flex-wrap: wrap;
+  }
+
+  .topbar-left {
+    min-width: 0;
+  }
+
+  .topbar-title {
+    font-size: var(--text-base);
+  }
 }
 
 @media (max-width: 480px) {
   .kpi-grid {
     grid-template-columns: 1fr;
+  }
+
+  .app-topbar {
+    padding: 0 var(--space-3);
+    height: auto;
+    min-height: var(--topbar-height);
+  }
+
+  .topbar-breadcrumb {
+    display: none;
+  }
+
+  .page-header-left h2 {
+    font-size: var(--text-xl);
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-success,
+  .btn-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-header-actions,
+  .modal-footer,
+  .search-filter-bar {
+    width: 100%;
+  }
+
+  .modal,
+  .modal-lg,
+  .modal-xl {
+    max-width: calc(100vw - 1.5rem);
+  }
+
+  .card-header,
+  .modal-header {
+    padding: var(--space-4);
+  }
+
+  .card-body,
+  .modal-body {
+    padding: var(--space-4);
   }
 }
 
