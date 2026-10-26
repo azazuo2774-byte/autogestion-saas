@@ -1,0 +1,1 @@
+INSERT INTO "Suscripciones" ("UsuarioId", "TenantId", "PlanId", "InicioUtc", "VencimientoUtc", "Estado", "ContactoCorreo", "ContactoTelefono") VALUES (1, 1, 2, NOW(), NOW() + INTERVAL '30 days', 'Inscrita', 'prueba@test.com', '70000000');

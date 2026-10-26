@@ -23,7 +23,7 @@ const PAGE_NAMES = {
 };
 
 export default function Topbar({ isAdminPanel }) {
-  const { currentRoute, toggleSidebar, navigate, user, tenant, notifications, markNotifRead, logout } = useApp();
+  const { currentRoute, toggleSidebar, toggleMobileSidebar, navigate, user, tenant, notifications, markNotifRead, logout } = useApp();
   const [showNotif, setShowNotif] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -33,7 +33,17 @@ export default function Topbar({ isAdminPanel }) {
   return (
     <header className="app-topbar">
       <div className="topbar-left">
-        <button className="toggle-sidebar-btn" onClick={toggleSidebar} title="Colapsar menú">
+        <button
+          className="toggle-sidebar-btn"
+          onClick={() => {
+            if (window.innerWidth <= 768) {
+              toggleMobileSidebar();
+              return;
+            }
+            toggleSidebar();
+          }}
+          title="Colapsar menú"
+        >
           ☰
         </button>
         <div>

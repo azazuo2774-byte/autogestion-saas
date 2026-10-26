@@ -1844,17 +1844,37 @@ img {
 }
 
 @media (max-width: 768px) {
+  .app-layout {
+    min-height: 100vh;
+  }
+
   .app-sidebar {
-    transform: translateX(-100%);
-    transition: transform var(--transition-base);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: min(82vw, 300px);
+    z-index: 120;
+    transform: translateX(-105%);
+    transition: transform var(--transition-base), width var(--transition-base);
+    box-shadow: var(--shadow-xl);
   }
 
   .app-sidebar.mobile-open {
     transform: translateX(0);
   }
 
-  .app-main {
+  .app-layout.sidebar-collapsed .app-sidebar {
+    width: min(82vw, 300px);
+  }
+
+  .main-content {
     margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .page-content {
+    padding: var(--space-4);
   }
 
   .app-content {
@@ -1919,6 +1939,10 @@ img {
     min-height: var(--topbar-height);
   }
 
+  .topbar-right {
+    gap: var(--space-2);
+  }
+
   .topbar-breadcrumb {
     display: none;
   }
@@ -1943,6 +1967,11 @@ img {
     width: 100%;
   }
 
+  .page-header-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .modal,
   .modal-lg,
   .modal-xl {
@@ -1957,6 +1986,61 @@ img {
   .card-body,
   .modal-body {
     padding: var(--space-4);
+  }
+}
+
+@media (max-width: 320px) {
+  .page-content {
+    padding: var(--space-3);
+  }
+
+  .app-topbar {
+    padding: 0 var(--space-2);
+  }
+
+  .topbar-title {
+    font-size: 0.9rem;
+  }
+
+  .topbar-btn,
+  .toggle-sidebar-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .user-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.72rem;
+  }
+
+  .card-body,
+  .card-header,
+  .modal-body,
+  .modal-header {
+    padding: var(--space-3);
+  }
+}
+
+@media (max-width: 240px) {
+  .topbar-right {
+    gap: 0.25rem;
+  }
+
+  .topbar-btn,
+  .toggle-sidebar-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .page-content,
+  .card-body,
+  .card-header,
+  .modal-body,
+  .modal-header {
+    padding: var(--space-2);
   }
 }
 
@@ -2050,6 +2134,24 @@ img {
   display: flex;
   min-height: 100vh;
   background: var(--gray-50);
+  position: relative;
+}
+
+.mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition-base), visibility var(--transition-base);
+  z-index: 90;
+}
+
+.mobile-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .app-layout.sidebar-collapsed .app-sidebar {

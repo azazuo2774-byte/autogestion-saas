@@ -25,7 +25,15 @@ public sealed class RegistroController:ControllerBase{
  var user=new Usuario{TenantId=tenant.Id,Nombre=req.Nombre,Email=email};
  user.PasswordHash=new PasswordHasher<Usuario>().HashPassword(user,req.Password);
  _db.Usuarios.Add(user);await _db.SaveChangesAsync(ct);
- return Created($"/api/usuarios/{user.Id}",new{usuarioId=user.Id,tenantId=tenant.Id,tenant=tenant.Nombre,bases=new[]{ $"autogestion_inventario_{tenant.Id}",$"autogestion_clientes_{tenant.Id}",$"autogestion_ventas_{tenant.Id}"}});
+ // Activar suscripción si existe una en estado Atendida con el mismo correo
+ var suscripcion=await _db.Suscripciones.FirstOrDefaultAsync(s=>s.ContactoCorreo==email&&s.Estado=="Atendida",ct);
+ string? suscripcionActivada=null;
+ if(suscripcion is not null){
+ suscripcion.Estado="Activo";
+ await _db.SaveChangesAsync(ct);
+ suscripcionActivada=$"Suscripción {suscripcion.Id} activada";
+ }
+ return Created($"/api/usuarios/{user.Id}",new{usuarioId=user.Id,tenantId=tenant.Id,tenant=tenant.Nombre,bases=new[]{ $"autogestion_inventario_{tenant.Id}",$"autogestion_clientes_{tenant.Id}",$"autogestion_ventas_{tenant.Id}"},suscripcionActivada});
  }
  [HttpPost("reintentar-tenant/{tenantId:long}")]
  public async Task<IActionResult> Reintentar(long tenantId,CancellationToken ct){

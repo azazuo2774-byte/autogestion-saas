@@ -43,13 +43,13 @@ const NAV_ADMIN = [
 ];
 
 export default function Sidebar({ isAdminPanel }) {
-  const { currentRoute, navigate, tenant, user, sidebarCollapsed, toggleSidebar, logout } = useApp();
+  const { currentRoute, navigate, tenant, user, sidebarCollapsed, mobileSidebarOpen, closeMobileSidebar, logout } = useApp();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const navItems = isAdminPanel ? NAV_ADMIN : NAV_AUTOVENTA;
 
   return (
-    <aside className={`app-sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
+    <aside className={`app-sidebar${sidebarCollapsed ? ' collapsed' : ''}${mobileSidebarOpen ? ' mobile-open' : ''}`}>
       {/* Logo */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">🚀</div>
@@ -93,7 +93,10 @@ export default function Sidebar({ isAdminPanel }) {
               <div
                 key={item.route}
                 className={`nav-item${currentRoute === item.route ? ' active' : ''}`}
-                onClick={() => navigate(item.route)}
+                onClick={() => {
+                  navigate(item.route);
+                  closeMobileSidebar();
+                }}
                 title={sidebarCollapsed ? item.label : undefined}
               >
                 <span className="nav-icon">{item.icon}</span>

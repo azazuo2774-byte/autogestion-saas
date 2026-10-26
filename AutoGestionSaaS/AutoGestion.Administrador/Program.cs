@@ -12,6 +12,7 @@ builder.Services.AddCors(options => {
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
+builder.Services.AddHostedService<SuscripcionVencidaWorker>();
 var app=builder.Build();
 app.UseCors();
 // La base 'autogestion_administrador' debe crearse manualmente una sola vez.

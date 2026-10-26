@@ -12,6 +12,7 @@ export function AppProvider({ children }) {
   const [tenant, setTenant] = useState(null);
   const [suscripcion, setSuscripcion] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, msg: 'Tu suscripción vence el 31 de octubre', tipo: 'warning', leida: false },
     { id: 2, msg: 'Nueva reserva registrada', tipo: 'info', leida: false },
@@ -20,6 +21,7 @@ export function AppProvider({ children }) {
   const navigate = (route, params = {}) => {
     setCurrentRoute(route);
     setRouteParams(params);
+    setMobileSidebarOpen(false);
   };
 
   const login = (email, password, asAdmin = false) => {
@@ -54,6 +56,8 @@ export function AppProvider({ children }) {
   };
 
   const toggleSidebar = () => setSidebarCollapsed(c => !c);
+  const toggleMobileSidebar = () => setMobileSidebarOpen(v => !v);
+  const closeMobileSidebar = () => setMobileSidebarOpen(false);
 
   const markNotifRead = (id) =>
     setNotifications(ns => ns.map(n => n.id === id ? { ...n, leida: true } : n));
@@ -113,7 +117,10 @@ export function AppProvider({ children }) {
       tenant,
       suscripcion,
       sidebarCollapsed,
+      mobileSidebarOpen,
       toggleSidebar,
+      toggleMobileSidebar,
+      closeMobileSidebar,
       login,
       logout,
       notifications,
